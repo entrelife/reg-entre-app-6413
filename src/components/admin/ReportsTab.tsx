@@ -58,9 +58,23 @@ const ReportsTab = () => {
       const { data, error } = await supabase
         .from('registrations')
         .select(`
-          *,
-          categories!registrations_category_id_fkey (name),
-          panchayaths (name, district)
+          id,
+          customer_id,
+          name,
+          mobile_number,
+          address,
+          ward,
+          agent_pro,
+          status,
+          fee_paid,
+          created_at,
+          approved_at,
+          approved_by,
+          expires_at,
+          category_id,
+          panchayath_id,
+          categories:category_id (name),
+          panchayaths:panchayath_id (name, district)
         `)
         .eq('status', 'approved')
         .order('approved_at', { ascending: false });
@@ -69,6 +83,7 @@ const ReportsTab = () => {
         console.error('Error fetching registrations:', error);
         toast.error('Error fetching registrations');
       } else {
+        console.log('Fetched registrations:', data);
         setRegistrations(data as unknown as Registration[] || []);
       }
     } catch (error) {
@@ -84,9 +99,23 @@ const ReportsTab = () => {
       const { data, error } = await supabase
         .from('registrations')
         .select(`
-          *,
-          categories!registrations_category_id_fkey (name),
-          panchayaths (name, district)
+          id,
+          customer_id,
+          name,
+          mobile_number,
+          address,
+          ward,
+          agent_pro,
+          status,
+          fee_paid,
+          created_at,
+          approved_at,
+          approved_by,
+          expires_at,
+          category_id,
+          panchayath_id,
+          categories:category_id (name),
+          panchayaths:panchayath_id (name, district)
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
