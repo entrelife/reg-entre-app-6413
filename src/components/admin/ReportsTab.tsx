@@ -16,33 +16,28 @@ import { cn } from '@/lib/utils';
 interface Registration {
   id: string;
   customer_id: string;
-  full_name: string;
+  name: string;
   mobile_number: string;
   address: string;
   ward: string;
-  agent: string;
+  agent_pro: string;
   status: string;
-  fee: number;
+  fee_paid: number;
   created_at: string;
-  approved_date: string;
+  approved_at: string;
   approved_by: string;
-  expiry_date: string;
+  expires_at: string;
   category_id: string;
-  preference_category_id?: string;
   panchayath_id?: string;
   categories: {
-    name_english: string;
-    name_malayalam: string;
-  };
-  preference_categories?: {
-    name_english: string;
-    name_malayalam: string;
+    name: string;
   };
   panchayaths?: {
     name: string;
     district: string;
   };
 }
+
 
 const ReportsTab = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
@@ -64,12 +59,11 @@ const ReportsTab = () => {
         .from('registrations')
         .select(`
           *,
-          categories:categories!registrations_category_id_fkey (name_english, name_malayalam),
-          preference_categories:categories!registrations_preference_category_id_fkey (name_english, name_malayalam),
-          panchayaths:panchayaths!registrations_panchayath_id_fkey (name, district)
+          categories (name),
+          panchayaths (name, district)
         `)
         .eq('status', 'approved')
-        .order('approved_date', { ascending: false });
+        .order('approved_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching registrations:', error);
@@ -91,9 +85,8 @@ const ReportsTab = () => {
         .from('registrations')
         .select(`
           *,
-          categories:categories!registrations_category_id_fkey (name_english, name_malayalam),
-          preference_categories:categories!registrations_preference_category_id_fkey (name_english, name_malayalam),
-          panchayaths:panchayaths!registrations_panchayath_id_fkey (name, district)
+          categories (name),
+          panchayaths (name, district)
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
@@ -108,12 +101,13 @@ const ReportsTab = () => {
     }
   };
 
+
   // Filter registrations by date range
   const filteredRegistrations = registrations.filter(registration => {
     // If no dates are selected, return all registrations
     if (!fromDate && !toDate) return true;
     
-    const registrationDate = registration.approved_date ? new Date(registration.approved_date) : null;
+    const registrationDate = registration.approved_at ? new Date(registration.approved_at) : null;
     if (!registrationDate) return false;
 
     const fromDateTime = fromDate ? startOfDay(fromDate) : null;
@@ -132,10 +126,10 @@ const ReportsTab = () => {
 
   // Calculate metrics based on filtered data
   const totalRegistrations = filteredRegistrations.length;
-  const totalFeesCollected = filteredRegistrations.reduce((sum, reg) => sum + (reg.fee || 0), 0);
+  const totalFeesCollected = filteredRegistrations.reduce((sum, reg) => sum + (reg.fee_paid || 0), 0);
   const totalCategories = [...new Set(filteredRegistrations.map(reg => reg.category_id))].length;
   const totalPanchayaths = [...new Set(filteredRegistrations.map(reg => reg.panchayath_id))].filter(Boolean).length;
-  const pendingAmount = pendingRegistrations.reduce((sum, reg) => sum + (reg.fee || 0), 0);
+  const pendingAmount = pendingRegistrations.reduce((sum, reg) => sum + (reg.fee_paid || 0), 0);
 
   const handleClear = () => {
     setFromDate(undefined);
@@ -406,16 +400,16 @@ const ReportsTab = () => {
               <TableBody>
                 {filteredRegistrations.map((registration) => (
                   <TableRow key={registration.id}>
-                    <TableCell className="font-medium">{registration.full_name}</TableCell>
+                    <TableCell className="font-medium">{registration.name}</TableCell>
                     <TableCell>{registration.mobile_number}</TableCell>
                     <TableCell className="max-w-md">
-                      {registration.categories?.name_english || 'N/A'}
+                      {registration.categories?.name || 'N/A'}
                     </TableCell>
-                    <TableCell>₹{registration.fee || 0}</TableCell>
+                    <TableCell>₹{registration.fee_paid || 0}</TableCell>
                     <TableCell>{registration.approved_by || 'N/A'}</TableCell>
                     <TableCell>
-                      {registration.approved_date 
-                        ? format(new Date(registration.approved_date), 'dd/MM/yyyy')
+                      {registration.approved_at 
+                        ? format(new Date(registration.approved_at), 'dd/MM/yyyy')
                         : 'N/A'
                       }
                     </TableCell>
