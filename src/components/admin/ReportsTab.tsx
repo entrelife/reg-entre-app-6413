@@ -59,7 +59,7 @@ const ReportsTab = () => {
         .from('registrations')
         .select(`
           *,
-          categories (name),
+          categories!registrations_category_id_fkey (name),
           panchayaths (name, district)
         `)
         .eq('status', 'approved')
@@ -85,7 +85,7 @@ const ReportsTab = () => {
         .from('registrations')
         .select(`
           *,
-          categories (name),
+          categories!registrations_category_id_fkey (name),
           panchayaths (name, district)
         `)
         .eq('status', 'pending')
