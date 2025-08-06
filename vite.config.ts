@@ -11,6 +11,10 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
     hmr: {
       clientPort: 8080,
+      port: 8080,
+    },
+    watch: {
+      usePolling: true,
     },
   },
   plugins: [
@@ -24,5 +28,6 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     global: 'globalThis',
+    __WS_TOKEN__: JSON.stringify('development'),
   },
 }));
